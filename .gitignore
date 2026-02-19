@@ -1,0 +1,17 @@
+*.zip
+*.md
+*.sql
+**/.env
+**/.env.*
+/vendor
+**/node_modules
+/mamory_vault/agent-runtime/ecosystem.config.js
+/mamory_vault/agent-runtime/ecosystem.config.js.bak
+/agent-ui/runtime/ecosystem.config.js
+/mamory_vault/agent-runtime/logs/
+/mamory_vault/agent-runtime/runtime/runtime.log
+/agent-ui/runtime/logs/
+/debug_phase3.py
+/debug_restart.py
+/qa_test_phase3.py
+/test_llm_time.js

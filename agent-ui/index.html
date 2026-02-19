@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Chat</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+</head>
+
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="brand">Agent Chat</div>
+            <div class="indicators">
+                <div class="indicator"><span>server_time:</span> <span id="serverTime">-</span></div>
+                <div class="indicator"><span>thread_marker:</span> <span id="threadMarker">-</span></div>
+                <div class="indicator"><span>restart_detected:</span> <span id="restartDetected">-</span></div>
+                <div class="indicator"><span>drift_ms:</span> <span id="driftMs">-</span></div>
+                <div class="indicator"><span>memory status:</span> <span id="memoryStatus">-</span></div>
+            </div>
+        </header>
+        <main class="chat" id="chat"></main>
+        <footer class="composer">
+            <input id="input" class="input" type="text" placeholder="Type a message" />
+            <button id="sendBtn" class="send">Send</button>
+        </footer>
+    </div>
+    <script src="assets/live-app.js?v=2"></script>
+</body>
+
+</html>

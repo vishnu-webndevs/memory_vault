@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent UI</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;margin:0;background:#0b0e11;color:#eef2f6}
+.wrap{max-width:960px;margin:0 auto;padding:24px}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.col{flex:1 1 240px}
+.label{font-size:12px;opacity:.8;margin-bottom:6px}
+input,button{padding:10px 12px;border-radius:6px;border:1px solid #2a3242;background:#12161c;color:#eef2f6}
+input{width:100%}
+button{cursor:pointer}
+button.primary{background:#2563eb;border-color:#2563eb}
+.status{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;border:1px solid #2a3242;background:#12161c}
+.badge.ok{border-color:#16a34a;background:#052e1a}
+.badge.warn{border-color:#f59e0b;background:#2b1a05}
+.card{background:#0f141b;border:1px solid #1f2837;border-radius:12px}
+.card-header{padding:12px 16px;border-bottom:1px solid #1f2837;font-weight:600}
+.card-body{padding:12px 16px}
+.log{height:320px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.msg-row{display:flex;gap:8px;margin-top:12px}
+.msg-row input{flex:1}
+.meta{font-size:12px;opacity:.8;margin-top:8px}
+.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#12161c;border:1px solid #2a3242;margin-right:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>Agent UI</h2>
+  <div class="row">
+    <div class="col">
+      <div class="label">WebSocket URL</div>
+      <input id="ws_url" value="ws://127.0.0.1:3001">
+    </div>
+    <div class="col">
+      <div class="label">Session ID</div>
+      <input id="session_id" placeholder="auto-generated if empty">
+    </div>
+    <div class="col" style="align-self:end;display:flex;gap:8px">
+      <button id="btn_connect" class="primary">Connect</button>
+      <button id="btn_disconnect">Disconnect</button>
+    </div>
+  </div>
+
+  <div class="status">
+    <div id="conn_status" class="badge warn">Disconnected</div>
+    <div id="mem_status" class="badge">Memory: unknown</div>
+    <div id="thread_marker" class="pill">thread: -</div>
+    <div id="server_time" class="pill">server_time: -</div>
+    <div id="drift_ms" class="pill">drift_ms: -</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Conversation</div>
+    <div class="card-body">
+      <div id="log" class="log"></div>
+      <div class="msg-row">
+        <input id="msg" placeholder="Type a message">
+        <button id="btn_send" class="primary">Send</button>
+      </div>
+      <div id="meta" class="meta"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let ws=null
+function uid(){return 'xxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16)})}
+function setText(id,t){const el=document.getElementById(id);if(el)el.textContent=t}
+function appendLog(kind,text){const el=document.getElementById('log');const row=document.createElement('div');row.style.margin='4px 0';row.innerHTML='<span style="opacity:.7">'+kind+':</span> '+text;el.appendChild(row);el.scrollTop=el.scrollHeight}
+function setConn(ok){const el=document.getElementById('conn_status');if(!el)return;el.textContent=ok?'Connected':'Disconnected';el.classList.toggle('ok',ok);el.classList.toggle('warn',!ok)}
+function setMemStatus(s){const el=document.getElementById('mem_status');if(!el)return;el.textContent='Memory: '+String(s||'unknown')}
+function updateMeta(obj){try{if(typeof obj.server_time==='string'){setText('server_time','server_time: '+obj.server_time)}if(typeof obj.drift_ms!=='undefined'){setText('drift_ms','drift_ms: '+obj.drift_ms)}if(typeof obj.thread_marker==='string'){setText('thread_marker','thread: '+obj.thread_marker)}if(typeof obj.memory_status==='string'){setMemStatus(obj.memory_status)}const meta=document.getElementById('meta');meta.textContent=JSON.stringify(obj)}catch(_){}}
+function connect(){try{const url=document.getElementById('ws_url').value.trim()||'ws://127.0.0.1:3001';ws=new WebSocket(url);ws.onopen=function(){setConn(true);appendLog('system','connected')}ws.onclose=function(){setConn(false);appendLog('system','disconnected')}ws.onerror=function(e){appendLog('error',String(e?.message||e))}ws.onmessage=function(ev){try{const s=String(ev.data||'');appendLog('recv',s);const j=JSON.parse(s);if(j && j.type==='memory_status'){setMemStatus(j.status);return}if(j && typeof j.response==='string'){appendLog('assistant',j.response);updateMeta(j);return}updateMeta(j)}catch(_){appendLog('recv',String(ev.data||''))}}}catch(e){appendLog('error',String(e.message||e))}
+}
+function disconnect(){try{if(ws){ws.close();ws=null}}catch(_){}}
+function send(){const text=document.getElementById('msg').value.trim();if(!text){return}const sid=(document.getElementById('session_id').value.trim()||uid());document.getElementById('session_id').value=sid;const payload={message:text,session_id:sid};try{ws&&ws.send(JSON.stringify(payload));appendLog('user',text);document.getElementById('msg').value=''}catch(e){appendLog('error',String(e.message||e))}}
+document.getElementById('btn_connect').addEventListener('click',connect)
+document.getElementById('btn_disconnect').addEventListener('click',disconnect)
+document.getElementById('btn_send').addEventListener('click',send)
+document.getElementById('msg').addEventListener('keydown',function(e){if(e.key==='Enter'){send()}})
+</script>
+</body>
+</html>

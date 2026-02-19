@@ -1,0 +1,13 @@
+{
+  "name": "agent-ui-websocket",
+  "version": "1.0.0",
+  "description": "WebSocket bridge for Agent UI",
+  "main": "websocket.js",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.0.0",
+    "openai": "^6.15.0",
+    "uuid": "^9.0.0",
+    "ws": "^8.16.0"
+  }
+}
