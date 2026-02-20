@@ -1,7 +1,10 @@
-const CONFIG = {
+const defaultConfig = {
     WS_URL: 'wss://ws.webndevs.com/ws',
     API_BASE: 'https://api.webndevs.com/api/'
 };
+
+const envConfig = (typeof window !== 'undefined' && window.APP_CONFIG) ? window.APP_CONFIG : {};
+const CONFIG = { ...defaultConfig, ...envConfig };
 console.log("Live App Loaded v3.2 - Timezone Fix");
 const chatEl = document.getElementById('chat');
 const inputEl = document.getElementById('input');
