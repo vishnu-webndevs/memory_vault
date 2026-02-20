@@ -1,8 +1,7 @@
-const wsScheme = location.protocol === 'https:' ? 'wss' : 'ws';
-const host = location.hostname || '127.0.0.1';
-const pathWs = '/ws';
-const apiBase = `${location.protocol}//${location.host}/api/`;
-const CONFIG = { WS_URL: `${wsScheme}://${host}${pathWs}`, API_BASE: apiBase };
+const CONFIG = {
+    WS_URL: 'wss://ws.webndevs.com/ws',
+    API_BASE: 'https://api.webndevs.com/api/'
+};
 console.log("Live App Loaded v3.2 - Timezone Fix");
 const chatEl = document.getElementById('chat');
 const inputEl = document.getElementById('input');
