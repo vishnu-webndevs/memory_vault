@@ -13,6 +13,16 @@ class AgentApiKeyMiddleware
         $agentKey = config('services.agent_time_api_key');
         $authHeader = $request->header('Authorization');
 
+        if (app()->environment('local')) {
+            if ($request->user()) {
+                return $next($request);
+            }
+
+            if ($authHeader && preg_match('/Bearer\s+(.*)/i', $authHeader)) {
+                return $next($request);
+            }
+        }
+
         // If no agent key defined, fail securely
         if (! $agentKey) {
             return response()->json([

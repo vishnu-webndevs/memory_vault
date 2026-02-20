@@ -304,37 +304,26 @@ async function fetchMemory(sessionId) {
         return { status: 'inactive', items: {} };
     }
     try {
-        // Fetch from Vault (global/user memory)
-        const res = await axios.get(API_BASE + 'agent-memory', {
-            params: { limit: 50 },
+        const res = await axios.get(API_BASE + 'agent-memory/fetch', {
+            params: { session_id: sessionId },
             timeout: 10000,
             headers: {
                 Authorization: 'Bearer ' + WS_MEMORY_TOKEN
             }
         });
-        
+
         let items = {};
-        if (res && res.data) {
-            // Handle pagination shape: { current_page: 1, data: [ ... ] }
-            const rows = Array.isArray(res.data.data) ? res.data.data : (Array.isArray(res.data) ? res.data : []);
-            
-            rows.forEach(function(row) {
-                if (row && row.content) {
-                    // Check if content is JSON KV
-                    try {
-                        const c = JSON.parse(row.content);
-                        if (c && c.key && c.value) {
-                            items[c.key] = c.value;
-                            return;
-                        }
-                    } catch (_) {}
-                    
-                    // Otherwise treat as note
-                    items['note_' + (row.id || Math.random())] = row.content;
-                }
-            });
+        let payload = res && res.data ? res.data : null;
+
+        // jsonSuccess wrapper: { success: true, data: { session_id, items, count }, message: 'OK' }
+        if (payload && payload.data && typeof payload.data === 'object') {
+            payload = payload.data;
         }
-        
+
+        if (payload && payload.items && typeof payload.items === 'object') {
+            items = payload.items;
+        }
+
         console.log('memory_fetch_ok');
         return {
             status: Object.keys(items).length ? 'active' : 'inactive',
