@@ -2,11 +2,7 @@ const wsScheme = location.protocol === 'https:' ? 'wss' : 'ws';
 const host = location.hostname || '127.0.0.1';
 const pathWs = '/ws';
 const apiBase = `${location.protocol}//${location.host}/api/`;
-let wsHost = host;
-if (location.port && location.port !== '80' && location.port !== '443') {
-    wsHost = `${host}:3001`;
-}
-const CONFIG = { WS_URL: `${wsScheme}://${wsHost}${pathWs}`, API_BASE: apiBase };
+const CONFIG = { WS_URL: `${wsScheme}://${host}${pathWs}`, API_BASE: apiBase };
 console.log("Live App Loaded v3.2 - Timezone Fix");
 const chatEl = document.getElementById('chat');
 const inputEl = document.getElementById('input');
