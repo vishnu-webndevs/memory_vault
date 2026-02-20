@@ -1,6 +1,8 @@
+const wsScheme = location.protocol === 'https:' ? 'wss' : 'ws';
+const defaultHost = location.hostname || '127.0.0.1';
 const defaultConfig = {
-    WS_URL: 'wss://ws.webndevs.com/ws',
-    API_BASE: 'https://api.webndevs.com/api/'
+    WS_URL: `${wsScheme}://${defaultHost}/ws`,
+    API_BASE: `${location.protocol}//${location.host}/api/`
 };
 
 const envConfig = (typeof window !== 'undefined' && window.APP_CONFIG) ? window.APP_CONFIG : {};
